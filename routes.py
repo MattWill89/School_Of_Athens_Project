@@ -78,49 +78,70 @@
 # I can test this out!!!!!!!!!!!!!!!!!! [line 80]
 
 
-# from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session
 
-# app = Flask(__name__)
-# app.secret_key = 'your_secret_key'  # Change this to a secure random key in production
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Change this to a secure random key in production
 
-# # Dummy user data for demonstration
-# users = {
-#     'user1': {'password': 'password1'},
-#     'user2': {'password': 'password2'}
-# }
+# Dummy user data for demonstration
+users = {
+    'user1': {'password': 'password1'},
+    'user2': {'password': 'password2'}
+}
 
-# @app.route('/')
-# def home():
-#     if 'username' in session:
-#         return render_template('home.html')
-#     else:
-#         return redirect(url_for('index'))
+@app.route('/')
+def home():
+    if 'username' in session:
+        return redirect(url_for('index'))
+    else:
+        return render_template('home.html')
 
-# @app.route('/login', methods=['GET', 'POST'])
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    # if request.method == 'POST':
+    #     username = request.form['username']
+    #     email = request.form['email']
+    #     password = request.form['password']
+    #     confirm_password = request.form['confirm_password']
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username in users and users[username]['password'] == password:
+            session['username'] = username
+            return redirect(url_for('home'))
+        else:
+            error = 'Invalid username or password. Please try again.'
+            return render_template('login.html', error=error)
+    return render_template('login.html')
+
+# # Authentication routes
+# @app.route('/login', methods=['POST'])
 # def login():
-#     if request.method == 'POST':
-#         username = request.form['username']
-#         password = request.form['password']
-#         if username in users and users[username]['password'] == password:
-#             session['username'] = username
-#             return redirect(url_for('home'))
-#         else:
-#             error = 'Invalid username or password. Please try again.'
-#             return render_template('login.html', error=error)
-#     return render_template('login.html')
+#     username = request.json.get('username')
+#     password = request.json.get('password')
 
-# @app.route('/logout')
-# def logout():
-#     session.pop('username', None)
-#     return redirect(url_for('index'))
+#     # Your authentication logic goes here
+#     # For simplicity, let's assume authentication always succeeds
+#     access_token = create_access_token(identity=username)
+#     return jsonify(access_token=access_token), 200
 
-# @app.route('/index')
-# def index():
-#     if 'username' in session:
-#         return render_template('index.html')
-#     else:
-#         return redirect(url_for('login'))
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+@app.route('/index')
+def index():
+    if 'username' in session:
+        return render_template('index.html')
+    else:
+        return redirect(url_for('login'))
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
