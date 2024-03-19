@@ -5,6 +5,9 @@ import os
 SECRET_KEY = os.environ.get('SECRET_KEY') or 'mattheww89'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///library.db'
 
+# TBD => Set Up DB
+    # Tables -> users, books
+
 #import from routes
 
 import os

@@ -1,15 +1,24 @@
 from flask import Flask
-app = Flask(__name__)
-from flask_jwt_extended import JWTManager
+from config import *
+from routes import site
+# from .authentication.routes import auth
+
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from models import db as root_db, login_manager, ma
+from flask_cors import CORS
+# from helpers import JSONEncoder
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
-db = SQLAlchemy(app)
-jwt = JWTManager(app)
+CORS(app)
 
-# Import routes after initializing app, db, and jwt
-from routes import *
+app.register_blueprint(site)
+# app.register_blueprint(auth)
+# app.register_blueprint(api)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# app.json_encoder = JSONEncoder
+app.config.from_object(Config)
+root_db.init_app(app)
+# login_manager.init_app(app)
+ma.init_app(app)
+migrate = Migrate(app, root_db)

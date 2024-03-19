@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+    <title>Edit Book</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            background-image: url('../static/img/matthew-feeney-library-unsplash.jpg');
+            background-image: url('../static/img/janko-ferlic-unsplash.jpg');
             background-size: cover;
             background-position: center;
             height: 100vh;
@@ -38,8 +38,8 @@
         }
 
         input[type="text"],
-        input[type="password"],
-        input[type="email"] {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
@@ -65,30 +65,40 @@
 
 <body>
     <div class="container">
-        <h2>Sign Up</h2>
-        <form action="/signup" method="POST">
+        <h2>Edit Book</h2>
+        <form action="/edit_book/{{book.id}}" method="POST">
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+                <label for="isbn">ISBN:</label>
+                <input type="text" id="isbn" name="isbn" value="{{book.isbn}}" required>
             </div>
             <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+                <label for="author">Author:</label>
+                <input type="text" id="author" name="author" value="{{book.author}}" required>
             </div>
             <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" value="{{book.title}}" required>
             </div>
             <div class="form-group">
-                <label for="confirm_password">Confirm Password:</label>
-                <input type="password" id="confirm_password" name="confirm_password" required>
+                <label for="length">Length:</label>
+                <input type="number" id="length" name="length" value="{{book.length}}" required>
             </div>
-            <button type="submit">Sign Up</button>
+            <div class="form-group">
+                <label for="hardcover">Hardcover:</label>
+                <select id="hardcover" name="hardcover" required>
+                    {% if book.hardcover %}
+                        <option value="true" selected>Yes</option>
+                        <option value="false">No</option>
+                    {% else %}
+                        <option value="true">Yes</option>
+                        <option value="false" selected>No</option>
+                    {% endif %}
+                </select>
+            </div>
+            <button type="submit">Update</button>
         </form>
-        
-        <!-- Sign up success message and links -->
-        <p>Already have an account? <a href="/login">Login</a></p>
-        <p>Go to <a href="/">Home</a> page</p>
+        <p>Go to <a href="/manage_books">Manage Submitted Books</a> page</p>
     </div>
 </body>
 </html>
+
