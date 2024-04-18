@@ -77,7 +77,6 @@ PyJWT
 pypng
 python-dateutil
 python-dotenv
-pywin32
 PyYAML
 pyyaml-include
 qrcode
