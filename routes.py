@@ -1,86 +1,7 @@
-# # routes.py
-# from app import app, db, jwt
-# from flask import jsonify, request
-# from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-# from models import Book
-
-
-
-
-# # Authentication routes
-# @site.route('/login', methods=['POST'])
-# def login():
-#     username = request.json.get('username')
-#     password = request.json.get('password')
-
-#     # Your authentication logic goes here
-#     # For simplicity, let's assume authentication always succeeds
-#     access_token = create_access_token(identity=username)
-#     return jsonify(access_token=access_token), 200
-
-# # CRUD API routes
-# @site.route('/books', methods=['GET'])
-# def get_books():
-#     books = Book.query.all()
-#     return jsonify(books=[book.__dict__ for book in books]), 200
-
-# @site.route('/books/<int:id>', methods=['GET'])
-# def get_book(id):
-#     book = Book.query.get(id)
-#     if book:
-#         return jsonify(book.__dict__), 200
-#     else:
-#         return jsonify(message='Book not found'), 404
-
-# @site.route('/books', methods=['POST'])
-# @jwt_required()
-# def create_book():
-#     data = request.json
-#     book = Book(**data)
-#     db.session.add(book)
-#     db.session.commit()
-#     return jsonify(message='Book created successfully'), 201
-
-# @site.route('/books/<int:id>', methods=['PUT'])
-# @jwt_required()
-# def update_book(id):
-#     data = request.json
-#     book = Book.query.get(id)
-#     if book:
-#         for key, value in data.items():
-#             setattr(book, key, value)
-#         db.session.commit()
-#         return jsonify(message='Book updated successfully'), 200
-#     else:
-#         return jsonify(message='Book not found'), 404
-
-# @site.route('/books/<int:id>', methods=['DELETE'])
-# @jwt_required()
-# def delete_book(id):
-#     book = Book.query.get(id)
-#     if book:
-#         db.session.delete(book)
-#         db.session.commit()
-#         return jsonify(message='Book deleted successfully'), 200
-#     else:
-#         return jsonify(message='Book not found'), 404
-
-# # Example protected route
-# @site.route('/protected', methods=['GET'])
-# @jwt_required()
-# def protected():
-#     current_user = get_jwt_identity()
-#     return jsonify(logged_in_as=current_user), 200
-
-
-
-# !!!!!!!!!!!!!!!!This code is for getting directing use this code on the bottom first so that 
-# I can test this out!!!!!!!!!!!!!!!!!! [line 80]
-
-
-from flask import Flask, render_template, request, redirect, url_for, session, Blueprint
+from flask import Flask, render_template, request, redirect, url_for, session, Blueprint, jsonify
 from models import db, User, Book
 from flask import  render_template
+from flask_jwt_extended import create_access_token
 
 site = Blueprint('site', __name__, template_folder='templates')
 
@@ -115,10 +36,16 @@ def handle_add_user(username, email, password, confirm_password):
 
 @site.route('/')
 def home():
-    if 'username' in session:
-        return redirect('/index')
-    else:
-        return render_template('home.html')
+    # if 'username' in session:
+
+        test_obj = {
+            'id': 1,
+            'test': 'test'
+        }
+
+        return jsonify(test_obj)
+    #else:
+    #    return render_template('home.html')
 
 
 
@@ -183,20 +110,32 @@ def index():
 if __name__ == '__main__':
     app.run(debug=True)
 
+# @site.route('/login', methods=['POST'])
+# def login():
+#     username = request.json.get('username')
+#     password = request.json.get('password')
+
+#     # Your authentication logic goes here
+#     # For simplicity, let's assume authentication always succeeds
+#     access_token = create_access_token(identity=username)
+#     return jsonify(access_token=access_token), 200
+
 @site.route('/add_book', methods=['GET', 'POST'])
 def add_a_book():
 
     if request.method == 'POST':
-        isbn = request.form['isbn']
-        author = request.form['author']
-        title = request.form['title']
-        length = request.form['length']
-        if request.form['hardcover'] == 'true':
+        id = request.json.get('id')
+        isbn = request.json.get('isbn')
+        author = request.json.get('author')
+        title = request.json.get('title')
+        length = request.json.get('length')
+        if request.json.get('hardcover') == 'true':
             hardcover = True
         else:
             hardcover = False
 
     book = Book(
+        id = id,
         isbn = isbn,
         author = author,
         title = title,
@@ -206,15 +145,21 @@ def add_a_book():
     
     db.session.add(book)
     db.session.commit()
-    return redirect('/manage_books')
+
+    # access_token = create_access_token(identity=session['username'])
+    return jsonify("Test")
 
 
 @site.route('/manage_books', methods=['GET', 'POST'])
 def manage_books():
 
-    books = Book.query.order_by(Book.title).all()
+    books = Book.query.order_by(Book.id).all()
 
-    return render_template('manage_books.html', books=books)
+    # Iterate over each book and convert to a Dictionary
+    books_dict = [book.to_dict() for book in books]
+
+    # return render_template('manage_books.html', books=books)
+    return jsonify(books_dict)
 
 @site.route('/edit_book/<book_id>', methods=['GET', 'POST'])
 def edit_book(book_id):
@@ -224,11 +169,11 @@ def edit_book(book_id):
     # If an "Edit Book" form is submitted, we update the found "book" instance
     # before committing these changes to the DB.
     if request.method == 'POST':
-        book.isbn = request.form['isbn']
-        book.author = request.form['author']
-        book.title = request.form['title']
-        book.length = request.form['length']
-        if request.form['hardcover'] == 'true':
+        book.isbn = request.json.get('isbn')
+        book.author = request.json.get('author')
+        book.title = request.json.get('title')
+        book.length = request.json.get('length')
+        if request.json.get('hardcover') == 'true':
             book.hardcover = True
         else:
             book.hardcover = False
@@ -237,7 +182,7 @@ def edit_book(book_id):
         db.session.commit()
         return redirect('/manage_books')
         
-    return render_template('edit_book.html', book=book)
+    return jsonify(book.to_dict())
 
 @site.route('/delete_book/<book_id>')
 def delete_book(book_id):

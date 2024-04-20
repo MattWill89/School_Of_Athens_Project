@@ -82,3 +82,13 @@ class Book(db.Model):
         self.title = title
         self.length = length
         self.hardcover = hardcover
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'isbn': self.isbn,
+            'author': self.author,
+            'title': self.title,
+            'length': self.length,
+            'hardcover': self.hardcover
+        }
